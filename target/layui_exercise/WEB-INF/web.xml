@@ -1,0 +1,44 @@
+<!DOCTYPE web-app PUBLIC
+ "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+ "http://java.sun.com/dtd/web-app_2_3.dtd" >
+
+<web-app>
+  <display-name>Archetype Created Web Application</display-name>
+
+  <!-- 编码过滤器 开始-->
+  <filter>
+    <filter-name>EncodeingFilter</filter-name>
+    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+    <!-- 注入编码类型 -->
+    <init-param>
+      <param-name>encoding</param-name>
+      <param-value>UTF-8</param-value>
+    </init-param>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>EncodeingFilter</filter-name>
+    <!-- <url-pattern>*.action</url-pattern> -->
+    <servlet-name>springmvc</servlet-name>
+  </filter-mapping>
+  <!-- 编码过滤器 结束-->
+
+  <!-- 配置前端控制器 开始 -->
+  <servlet>
+    <servlet-name>springmvc</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    <!-- 注入核心配置文件的地址 -->
+    <init-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>classpath:springmvc.xml</param-value>
+    </init-param>
+    <!-- 启动时就要创建DispatcherServlet对象 -->
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>springmvc</servlet-name>
+    <!-- 所有的以xxxx.action结尾的url全部交给 DispatcherServlet去处理 -->
+    <url-pattern>/</url-pattern>
+  </servlet-mapping>
+</web-app>

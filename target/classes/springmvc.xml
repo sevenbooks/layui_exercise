@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+	
+	<context:component-scan base-package="com.sxt.controller"></context:component-scan>
+<!--	<context:component-scan base-package="com.sxt.service.impl"></context:component-scan>-->
+	
+	<!-- 1，配置了注解的适配器和映射器
+		 2，配置了很多的默认转化器
+		 	   |-从前台到后台的地转化器、  如果用户提交日期的字符串后台转成Date
+		 	   |-从后台后前台的转化器  如果用户请求想拿到json数据
+		  -->
+	<mvc:annotation-driven></mvc:annotation-driven>
+	
+	
+	<!-- 配置视图解析器 -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<!-- 注入前缀 -->
+		<property name="prefix" value="/WEB-INF/view/"></property>
+		<!-- 注入后缀 -->
+		<property name="suffix" value=".jsp"></property>
+	</bean>
+	
+	
+	<!-- 配置springmvc对文件上传的支持 -->
+	<bean id="multipartResolver"  class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- 设置文件名的编码 -->
+		<property name="defaultEncoding" value="utf-8"></property>
+		<!-- 配置最上传文件的支持  20M -->
+		<property name="maxUploadSize" value="20971520"></property>
+		<!-- 设置文件上传的临时目录 -->
+<!--		<property name="uploadTempDir"  value="upload/temp"/>-->
+	</bean>
+
+	<!--在springMVC配置文件配置当一个请求找不到处理器时将会把它交给容器本身处理, 解决了可以访问jsp文件但是不能访问html文件的问题-->
+	<mvc:default-servlet-handler />
+
+
+</beans>
+

@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>数组表格</title>
+<link rel="stylesheet" href="resources/layui/css/layui.css">
+</head>
+<body>
+	<table class="layui-hide" id="userTable" lay-filter="userTable"></table>
+	<div style="display: none;" id="userToolBar">
+		    <button type="button" class="layui-btn layui-btn-sm" lay-event="add">增加</button>
+		    <button type="button" class="layui-btn layui-btn-sm" lay-event="batchDelete">批量删除</button>
+		    <button type="button" class="layui-btn layui-btn-sm" lay-event="getSelect">得到选中行</button>
+		    <button type="button" class="layui-btn layui-btn-sm" lay-event="reloadTable">刷新数据</button>
+	</div>
+	
+	<div  id="userBar" style="display: none;">
+	  <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+	  <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+	</div>
+	<script src="resources/layui/layui.js"></script>
+	<script type="text/javascript">
+		layui.use([ 'jquery', 'layer', 'form', 'table' ], function() {
+			var $ = layui.jquery;
+			var layer = layui.layer;
+			var form = layui.form;
+			var table = layui.table;
+			
+			//渲染数据表格
+			var tableIns=table.render({
+				 elem: '#userTable'   //渲染的目标对象,对应的是数据表格的id
+			    ,url:'resources/json/users.json' //数据接口
+			    ,title: '用户数据表'//数据导出来的标题
+			    /* ,toolbar:"<div>xxx</div>" */
+			    ,toolbar:"#userToolBar"   //表格的工具条,用html中元素的id取的
+			    ,defaultToolbar:['filter','print']
+			    /* ,height:300 */
+			    ,height:'full-200'
+			    ,cellMinWidth:100 //设置列的最小默认宽度
+			    ,done:function(res, curr, count){
+			    	/* alert(res);//后台url返回的json串
+			    	alert(curr);//当前页
+			    	alert(count);//数据总条数*/
+			    }
+			    ,totalRow:true //开启合并行
+			    ,page: true  //是否启用分页
+			  /*   ,limit:20 //设置每页显示条数 默认为10
+			    ,limits:[20,40,60,80] */
+			    ,text:{
+			        none: '暂无相关数据' //默认：无数据。注：该属性为 layui 2.2.5 开始新增
+			    }
+			    ,cols: [[   //列表数据
+				//*******注意:!!! field属性和数据接口(后台返回的json)里面的属性名一一映射(在这里就是和users.json文件中的属性名一一映射)
+			     {type: 'checkbox', fixed: 'left'} // 左侧的复选框
+			      ,{type: 'numbers'} // 左侧的显示的数字
+			      ,{field:'id', title:'ID', width:80,hide:true,sort:true}
+			      ,{field:'username', title:'用户名', width:120,sort:true,edit:true,align:'center'}
+			      ,{field:'email', title:'邮箱', width:150,  templet: function(res){
+			        return '<em>'+ res.email +'</em>'
+			      }}
+					,{field:'experience', title:'积分', width:80,totalRow:true}
+			      , {field:'sex', title:'性别', width:80, sort: true,align:'center',templet:function(d){
+			      	console.log("d:" + d.username);
+			    	  return d.sex=='男'?'汉子':'妹子'; // templet模板语法
+			      }}
+			      ,{field:'city', title:'城市', width:100}
+			      ,{field:'sign', title:'签名',totalRowText:"合计"}
+			      ,{field:'experience', title:'积分', width:80,totalRow:true}
+			      ,{field:'ip', title:'IP', width:120}
+			      ,{field:'logins', title:'登入次数', width:100,totalRow:true}
+			      ,{field:'joinTime', title:'加入时间', width:120}
+			      ,{fixed: 'right', title:'操作', toolbar: '#userBar', width:150,align:'center'} // 对应页面上的元素的id userBar
+			    ]]
+			})
+
+			
+			//监听头部工具栏事件
+			table.on("toolbar(userTable)",function(obj){ // 这个userTable对应的页面上那个table的 lay-filter="userTable"
+				 switch(obj.event){
+				 	// 各个case对应的是页面上这个table中的 lay-event的值
+				    case 'add':
+				      layer.msg('添加');
+				    break;
+				    case 'batchDelete':
+				      layer.msg('批量删除');
+				    break;
+				    case 'getSelect': // 得到选中行
+				    	var checkStatus = table.checkStatus('userTable'); // userTable
+				    	console.log(checkStatus.data) //获取选中行的数据
+				    	console.log(checkStatus.data.length) //获取选中行数量，可作为是否有选中行的条件
+				    	console.log(checkStatus.isAll ) //表格是否全选
+				    	break;
+				    case 'reloadTable': // 重载表格
+				    	/* table.reload("userTable", {
+				    		url:'resources/json/users.json'
+				    	}) */
+				    	
+				    	tableIns.reload({url:'resources/json/users.json'});
+					    break;
+				  };
+			})
+			//监听复选框选择
+			table.on('checkbox(userTable)', function(obj){
+			  console.log(obj.checked); //当前是否选中状态
+			  console.log(obj.data); //选中行的相关数据
+			  console.log(obj.type); //如果触发的是全选，则为：all，如果触发的是单选，则为：one
+			});
+
+			//监听单元格编辑(注意:前提是单元格可以编辑(即加上edit属性),上面只有用户名那一列加了 edit属性,)
+			table.on('edit(userTable)', function(obj){ //注：edit是固定事件名，test是table原始容器的属性 lay-filter="对应的值"
+			  console.log(obj.value); //得到修改后的值
+			  console.log(obj.field); //当前编辑的字段名
+			  console.log(obj.data); //所在行的所有相关数据  
+			  //发送post请求更新数据(也就是说更新数据库中的数据)
+			 /*  $.post("url?"+obj.field+"&id="+obj.data.id,function(json){
+				  
+			  }); */
+			});
+			//监听行单击事件
+			/* table.on('row(userTable)', function(obj){
+			  console.log(obj.tr) //得到当前行元素对象
+			  console.log(obj.data) //得到当前行数据
+			  obj.del(); //删除当前行
+			}); */
+
+			//监听行双击事件
+		   table.on('rowDouble(userTable)', function(obj){
+			  console.log(obj.tr) //得到当前行元素对象
+			  console.log(obj.data) //得到当前行数据
+			  obj.del(); //删除当前行
+			});
+			//监听行工具事件
+		   table.on('tool(userTable)', function(obj){ //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
+			   var data = obj.data; //获得当前行数据
+			   var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+			  if(layEvent === 'del'){ //删除
+				 layer.msg("删除");
+			     layer.confirm('真的删除行么', function(index){
+			       layer.close(index);
+			       //向服务端发送删除指令
+			     });
+			   } else if(layEvent === 'edit'){ //编辑
+			     //do something
+				   layer.msg("修改")
+			   }
+			 });
+
+		});
+	</script>
+</body>
+</html>

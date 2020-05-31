@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>文件上传</title>
+<link rel="stylesheet" href="resources/layui/css/layui.css">
+</head>
+<body>
+<a href="/hello">点我,我很暴躁</a>
+
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+  <legend>常规使用：普通图片上传</legend>
+</fieldset>
+ 
+<div class="layui-upload">
+  <button type="button" class="layui-btn" id="test1">上传图片</button>
+  <div class="layui-upload-list">
+    <img class="layui-upload-img" width="60" height="60" id="demo1">
+    <p id="demoText"></p>
+  </div>
+</div>   
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+  <legend>选完文件后不自动上传</legend>
+</fieldset>
+ 
+<div class="layui-upload">
+  <button type="button" class="layui-btn layui-btn-normal" id="test8">选择文件</button>
+  <button type="button" class="layui-btn" id="test9">开始上传</button>
+  <br>
+  <img alt="" src="" id="myimage">
+</div>
+	
+	<script src="resources/layui/layui.js"></script>
+	<script type="text/javascript">
+		layui.use([ 'jquery', 'layer', 'form', 'table','laydate','upload' ], function() {
+			var $ = layui.jquery;
+			var layer = layui.layer;
+			var form = layui.form;
+			var table = layui.table;
+			var laydate=layui.laydate;
+			var upload=layui.upload;
+			
+			//普通图片上传
+			  var uploadInst = upload.render({
+			    elem: '#test1'
+			    ,url: 'file/upload.action'
+			    ,accept:'images'
+			    ,acceptMime:'image/*'
+			    ,auto:true//是否选择文件之后自动上传
+			    ,field:'mf' //表单的name值,注意:这里要和springmvc控制器中方法的参数名一致
+			    ,before: function(obj){
+			      //预读本地文件示例，不支持ie8
+			      obj.preview(function(index, file, result){
+			        $('#demo1').attr('src', result); //图片链接（base64）
+			      });
+			    }
+			    ,done: function(res){
+			    	alert(res);
+			      //如果上传失败
+			      if(res.code > 0){
+			        return layer.msg('上传失败');
+			      }
+			      //上传成功
+			      layer.msg("上传成功");
+			    }
+			    ,error: function(){
+			      //演示失败状态，并实现重传
+			      var demoText = $('#demoText');
+			      demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+			      demoText.find('.demo-reload').on('click', function(){
+			        uploadInst.upload();
+			      });
+			    }
+			  });
+			
+			
+			//不自动上传
+			  upload.render({
+				  elem:'#test8',
+				  url:'file/upload.action',
+				  field:'mf',
+				  accept:'images',
+				  acceptMime:'image/*',
+				  auto:false,  //去掉自动上传
+				  bindAction:'#test9',
+                  before: function (){ // ****** 在上传之前带参数到后台,正好可以用到公司的天河系统的那个场景下,把datasource带到后台 ******
+                      this.data = {
+                          liaiqiu: '李爱秋',
+                          yanghelin: '杨贺麟'
+
+                      }
+                      console.log(this.data);
+                  },
+				  done: function(res){
+				      if(res.code > 0){
+				        return layer.msg('上传失败');
+				      }else{
+				    	  //上传成功
+					      layer.msg("上传成功");
+						  layer.msg(res.data.src);
+				    	  $("#myimage").attr("src",res.data.src);
+				      }
+				    },
+				  error:function(){
+					  layer.msg("服务器异常");
+				  }
+				  
+			  })
+			
+		});
+	</script>
+</body>
+</html>
