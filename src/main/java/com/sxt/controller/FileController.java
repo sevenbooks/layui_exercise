@@ -32,7 +32,7 @@ public class FileController {
 	 */
 	@RequestMapping("upload")
 	@ResponseBody
-	public  Map<String,Object>  upload03(MultipartFile mf, String id, String tablename, HttpServletRequest request) throws IOException {
+	public  Map<String,Object>  upload03(MultipartFile mf, String aiqiu, String xiaoqiu) throws IOException {
 		System.out.println("进入upload方法");
 		System.out.println(mf);
 		System.out.println(mf.getContentType());//文件的类型
@@ -40,8 +40,8 @@ public class FileController {
 		System.out.println(mf.getOriginalFilename());//文件名
 		System.out.println(mf.getSize());//文件大小
 		System.out.println(mf.getInputStream());//文件流
-		System.out.println("liaiqiu:" + request.getParameter("liaiqiu"));
-		System.out.println("yanghelin:" + request.getParameter("yanghelin"));
+		System.out.println("aiqiu2:" + aiqiu);
+		System.out.println("xiaoqiu2:" + xiaoqiu);
 		//文件上传的父目录
 		String parentPath=AppFileUtils.PATH;
 		//得到当前日期作为文件夹名称
